@@ -1,6 +1,6 @@
 use anyhow::{self, bail};
 use serde::de::DeserializeOwned;
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 use ureq::{self, Error as UreqError};
 
 use crate::types::{HorizonError, HttpMethod};
@@ -14,7 +14,7 @@ pub fn api_call<T: DeserializeOwned>(
     let mut req = match method {
         HttpMethod::GET => ureq::get(&url),
         HttpMethod::POST => ureq::post(&url),
-    };
+    }.timeout(Duration::from_secs(5)); 
     if token.is_some() {
         req = req.set("Authorization", token.clone().unwrap().as_str());
     }

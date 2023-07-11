@@ -3,7 +3,7 @@ use nacl::sign::{generate_keypair, signature, verify};
 use str_key::StrKey;
 
 use crate::str_key;
-use ed25519_dalek::{ExpandedSecretKey, SecretKey, Sha512};
+use ed25519_dalek::{SecretKey, Sha512};
 use ed25519_dalek::Digest;
 
 
@@ -61,18 +61,6 @@ impl Keypair {
         })
     }
 
-    fn new_from_public_key(public_key: Vec<u8>) -> Result<Self, anyhow::Error> {
-        if public_key.len() != 32 {
-            bail!("public_key length is invalid")
-        }
-
-        Ok(Self {
-            public_key,
-            secret_key: None,
-            secret_seed: None,
-        })
-    }
-
     pub fn from_secret_key(secret: &str) -> Result<Self, anyhow::Error> {
         let raw_secret = StrKey::decode_ed25519_secret_seed(secret)?;
 
@@ -82,9 +70,9 @@ impl Keypair {
     pub fn from_secret_master_key(secret: &str, nonce:&str) -> Result<Self, anyhow::Error> {
         let raw_secret = StrKey::decode_ed25519_secret_seed(secret)?;
         let raw_nonce= nonce.as_bytes();
-        let mut sha512 = Sha512::default();
-        let mut cloned_sha512 = sha512.clone();
-        let mut digest = sha512.chain(raw_secret.clone()).chain(nonce).finalize();
+        let sha512 = Sha512::default();
+        let cloned_sha512 = sha512.clone();
+        let digest = sha512.chain(raw_secret.clone()).chain(nonce).finalize();
         println!("=========================");
         println!("raw_secret: {:?}",raw_secret);
         println!("raw_nonce : {:?}",raw_nonce);
